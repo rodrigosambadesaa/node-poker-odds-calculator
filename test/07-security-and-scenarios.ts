@@ -144,18 +144,22 @@ describe('Player-count and street coverage (full and short decks)', () => {
 });
 
 describe('Popular starting hands (preflop)', () => {
+  // Ranges deliberately account for sampling noise from Monte Carlo.
+  // In particular, JTs versus 22 is close to a coin flip; the test must not
+  // call either hand a guaranteed favorite based on a small random sample.
   const cases = [
-    { name: 'AA vs KK', hands: ['AsAh', 'KsKh'], favorite: 0 },
-    { name: 'AA vs AK suited', hands: ['AdAc', 'AsKs'], favorite: 0 },
-    { name: 'QQ vs AK suited', hands: ['QsQh', 'AdKd'], favorite: 0 },
-    { name: '77 vs AK offsuit', hands: ['7s7h', 'AcKd'], favorite: 0 },
-    { name: 'JT suited vs 22', hands: ['JsTs', '2c2h'], favorite: 1 }
+    { name: 'AA vs KK', hands: ['AsAh', 'KsKh'], checked: 0, min: 75, max: 90 },
+    { name: 'AA vs AK suited', hands: ['AdAc', 'AsKs'], checked: 0, min: 79, max: 95 },
+    { name: 'QQ vs AK suited', hands: ['QsQh', 'AdKd'], checked: 0, min: 46, max: 65 },
+    { name: '77 vs AK offsuit', hands: ['7s7h', 'AcKd'], checked: 0, min: 45, max: 65 },
+    { name: 'JT suited vs 22', hands: ['JsTs', '2c2h'], checked: 1, min: 37, max: 63 }
   ];
-  for (const { name, hands, favorite } of cases) {
+  for (const { name, hands, checked, min, max } of cases) {
     it(`computes ${name}`, () => {
-      const result = OddsCalculator.calculate(hands.map(group), undefined, 'full', 2000);
-      expect(result.getIterationCount()).to.equal(2000);
-      expect(result.equities[favorite].getPotEquity()).to.be.above(45);
+      const iterations = 10000;
+      const result = OddsCalculator.calculate(hands.map(group), undefined, 'full', iterations);
+      expect(result.getIterationCount()).to.equal(iterations);
+      expect(result.equities[checked].getPotEquity()).to.be.within(min, max);
       expect(result.equities.reduce((sum, equity) => sum + equity.getPotEquity(), 0))
         .to.be.within(99, 101);
     });
