@@ -11,7 +11,7 @@
   "scripts": {
     "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true});require('node:fs').rmSync('dts',{recursive:true,force:true})\" && tsc",
     "lint": "eslint --ext .ts --ignore-pattern dist/ --ignore-pattern dts/ ./src",
-    "test": "mocha --timeout 120000"
+    "test": "node -e \"require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc --project tsconfig.test.json && mocha --timeout 120000"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   "author": "Mickael Burguet <www.rundef.com>",
   "license": "MIT",
   "engines": {
-    "node": ">= 18.0.0",
+    "node": ">=22.0.0",
     "npm": ">= 8"
   },
   "dependencies": {
@@ -45,9 +45,5 @@
     "mocha": "^11.7.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.8.3"
-  },
-  "ts-node": {
-    "esm": true,
-    "experimentalResolver": true
   }
 }
