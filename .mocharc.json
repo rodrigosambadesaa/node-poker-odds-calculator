@@ -1,8 +1,9 @@
 {
-	"node-option": [
-		"experimental-specifier-resolution=node",
-		"loader=ts-node/esm"
-	],
-	"extension": ["ts"],
-  	"spec": "test/**/*.ts"
+  "extension": [
+    "js"
+  ],
+  "spec": [
+    ".test-dist/test/**/*.js"
+  ],
+  "timeout": 120000
 }

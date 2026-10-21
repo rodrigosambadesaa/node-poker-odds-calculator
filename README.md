@@ -109,3 +109,10 @@ Use `--iterations 10000` in the CLI to cap preflop simulation work.
 
 CI validates input boundaries, popular starting hands, multiway outcomes across
 all four streets, TypeScript compilation, linting, and production npm advisories.
+
+## 🔒 Dependency security
+
+The direct `lodash` dependency has a secure minimum of **4.18.1** to
+address the high-severity `GHSA-r5fr-rjxr-66jc` advisory affecting
+older releases. The lockfile is committed with the registry-published SHA-512
+integrity value. CI also runs `npm audit --omit=dev --audit-level=high`.

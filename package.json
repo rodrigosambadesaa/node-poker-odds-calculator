@@ -11,11 +11,11 @@
   "scripts": {
     "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true});require('node:fs').rmSync('dts',{recursive:true,force:true})\" && tsc",
     "lint": "eslint --ext .ts --ignore-pattern dist/ --ignore-pattern dts/ ./src",
-    "test": "mocha --timeout 120000"
+    "test": "node -e \"require('node:fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc --project tsconfig.test.json && mocha --timeout 120000"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rundef/node-poker-odds-calculator.git"
+    "url": "git+https://github.com/rodrigosambadesaa/node-poker-odds-calculator.git"
   },
   "keywords": [
     "poker",
@@ -25,13 +25,13 @@
   "author": "Mickael Burguet <www.rundef.com>",
   "license": "MIT",
   "engines": {
-    "node": ">= 18.0.0",
+    "node": ">=22.0.0",
     "npm": ">= 8"
   },
   "dependencies": {
     "chalk": "^5.4.0",
     "commander": "^13.0.0",
-    "lodash": "^4.17.4"
+    "lodash": "^4.18.1"
   },
   "devDependencies": {
     "@types/chai": "^5.2.2",
@@ -46,8 +46,10 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.8.3"
   },
-  "ts-node": {
-    "esm": true,
-    "experimentalResolver": true
-  }
+  "files": [
+    "dist/",
+    "dts/",
+    "README.md",
+    "LICENSE.md"
+  ]
 }

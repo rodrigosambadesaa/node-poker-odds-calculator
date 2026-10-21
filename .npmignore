@@ -6,3 +6,5 @@ tslint.json
 .gitignore
 .travis.yml
 .nyc-output
+.test-dist/
+.github/
