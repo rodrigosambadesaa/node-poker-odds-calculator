@@ -19,10 +19,10 @@ export class CardGroup extends Array {
     }
     // Only documented card separators are discarded. Do not silently accept
     // HTML, control sequences or arbitrary characters in user-supplied cards.
-    if (/[^2-9a-z\s,;|\/-]/i.test(s)) {
+    if (/[^2-9a-z\s,;|\x2f-]/i.test(s)) {
       throw new Error('Invalid cards input');
     }
-    const tmp: string = s.replace(/[\s,;|\/-]/g, '');
+    const tmp: string = s.replace(/[\s,;|\x2f-]/g, '');
     if (tmp.length % 2 !== 0) {
       throw new Error(`Invalid cards: ${s.replace(/[^\x20-\x7e]/g, '?')}`);
     }
