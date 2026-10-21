@@ -13,19 +13,28 @@ export class HandEquity {
   protected possibleHandsCount: number;
   protected bestHandCount: number;
   protected tieHandCount: number;
+  protected splitPotShares: number;
 
   public constructor() {
     this.possibleHandsCount = 0;
     this.bestHandCount = 0;
     this.tieHandCount = 0;
+    this.splitPotShares = 0;
   }
 
-  public addPossibility(isBestHand: boolean, isTie: boolean): void {
+  public addPossibility(isBestHand: boolean, isTie: boolean, tiedPlayers: number = 2): void {
+    if (isBestHand && isTie) {
+      throw new Error('A result cannot be both a sole win and a tie');
+    }
+    if (isTie && (!Number.isSafeInteger(tiedPlayers) || tiedPlayers < 2)) {
+      throw new Error('Invalid number of tied players');
+    }
     this.possibleHandsCount += 1;
     if (isBestHand) {
       this.bestHandCount += 1;
     } else if (isTie) {
       this.tieHandCount += 1;
+      this.splitPotShares += 1 / tiedPlayers;
     }
   }
 
@@ -34,6 +43,14 @@ export class HandEquity {
       return 0;
     }
     return Math.round(this.bestHandCount * 100.0 / this.possibleHandsCount);
+  }
+
+  /** Percentage of the pot won, including a fractional share of tied pots. */
+  public getPotEquity(): number {
+    if (this.possibleHandsCount === 0) {
+      return 0;
+    }
+    return Math.round(10000 * (this.bestHandCount + this.splitPotShares) / this.possibleHandsCount) / 100;
   }
 
   public getTiePercentage(): number {
@@ -55,6 +72,7 @@ export class HandEquity {
 
 export class OddsCalculator {
   public static DEFAULT_ITERATIONS: number = 100000;
+  public static readonly MAX_ITERATIONS: number = 250000;
   public equities: HandEquity[];
   protected odds: number[];
   protected handranks: HandRank[];
@@ -69,8 +87,26 @@ export class OddsCalculator {
   }
 
   public static calculate(cardgroups: CardGroup[], board?: CardGroup, gameVariant?: string, iterations?: number): OddsCalculator {
+    if (gameVariant !== undefined && gameVariant !== 'full' && gameVariant !== 'short') {
+      throw new Error('Invalid game variant: expected full or short');
+    }
+    const deckSize: number = gameVariant === 'short' ? 36 : 52;
+    const maxPlayers: number = Math.floor((deckSize - 5) / 2);
+    if (!Array.isArray(cardgroups) || cardgroups.length < 2 || cardgroups.length > maxPlayers) {
+      throw new Error(`Expected 2 to ${maxPlayers} players`);
+    }
+    if (cardgroups.some((group: CardGroup) => !Array.isArray(group) || group.length !== 2)) {
+      throw new Error('Each player must have exactly two hole cards');
+    }
+    if (board != null && !Array.isArray(board)) {
+      throw new Error('Invalid board');
+    }
     if (board && [0, 3, 4, 5].indexOf(board.length) === -1) {
       throw new Error('The board must contain 0, 3, 4 or 5 cards');
+    }
+    if (iterations != null &&
+        (!Number.isSafeInteger(iterations) || iterations < 0 || iterations > OddsCalculator.MAX_ITERATIONS)) {
+      throw new Error(`Iterations must be an integer from 0 to ${OddsCalculator.MAX_ITERATIONS}`);
     }
 
     const allGroups: CardGroup[] = board ? cardgroups.concat(board) : cardgroups;
@@ -78,6 +114,12 @@ export class OddsCalculator {
     allGroups.forEach((group: CardGroup) => {
       allCards = allCards.concat(group);
     });
+    // Reject forged, malformed or tampered-with card objects before evaluation.
+    if (allCards.some((card: Card) => !(card instanceof Card) ||
+        !Number.isInteger(card.getRank()) || card.getRank() < 2 || card.getRank() > 14 ||
+        !Number.isInteger(card.getSuit()) || !Suit.all().includes(card.getSuit()))) {
+      throw new Error('Invalid card');
+    }
     // Invalid card values
     if (gameVariant === 'short') {
       allCards.forEach((card: Card) => {
@@ -186,13 +228,17 @@ export class OddsCalculator {
           isWinning = (highestRankingIndex.indexOf(i) > -1);
         }
 
-        equities[i].addPossibility(isWinning, isTie);
+        equities[i].addPossibility(isWinning, isTie, highestRankingIndex.length);
       }
     };
 
     const jobStartedAt: number = +new Date();
     if (!board || board.length === 0) {
       iterations = iterations || OddsCalculator.DEFAULT_ITERATIONS;
+      if (!Number.isSafeInteger(iterations) || iterations < 1 ||
+          iterations > OddsCalculator.MAX_ITERATIONS) {
+        throw new Error(`Iterations must be an integer from 1 to ${OddsCalculator.MAX_ITERATIONS}`);
+      }
 
       for (let x: number = iterations; x > 0; x -= 1) {
         const index1: number = random(0, remainingCount - 1);

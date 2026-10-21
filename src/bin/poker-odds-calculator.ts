@@ -11,10 +11,11 @@ const program = new Command();
 program
   .option('-b, --board <cards>', 'sets the board')
   .option('-g, --game <game variant name>', 'sets the game variant for calculation. options: full, short.', 'full')
+  .option('-i, --iterations <count>', 'pre-flop Monte Carlo iterations (1-250000)')
   .argument('<hand...>', 'players hands')
   .parse(process.argv);
 
-const opts = program.opts<{ game: string; board?: string }>();
+const opts = program.opts<{ game: string; board?: string; iterations?: string }>();
 const hands: string[] = program.args;
 
 function printHeader() {
@@ -55,7 +56,8 @@ try {
   const result: OddsCalculator = OddsCalculator.calculate(
     cardgroups,
     board,
-    gameVariant
+    gameVariant,
+    opts.iterations === undefined ? undefined : Number(opts.iterations)
   );
   const prepend: string = board !== null ? "" : "~";
 
@@ -107,5 +109,7 @@ try {
   }
   console.log();
 } catch (err) {
-  console.log(chalk.redBright(`❌ ${err.message}`));
+  const message = err instanceof Error ? err.message : 'Unknown error';
+  console.error(chalk.redBright(`❌ ${message}`));
+  process.exitCode = 1;
 }

@@ -1,6 +1,6 @@
 # ♠️♥️ Poker Odds Calculator ♣️♦️
 
-[![CI](https://github.com/rundef/node-poker-odds-calculator/actions/workflows/ci.yml/badge.svg)](https://github.com/rundef/node-poker-odds-calculator/actions/workflows/ci.yml)
+[![CI](https://github.com/rodrigosambadesaa/node-poker-odds-calculator/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigosambadesaa/node-poker-odds-calculator/actions/workflows/ci.yml)
 [![Latest Stable Version](https://img.shields.io/npm/v/poker-odds-calculator)](https://www.npmjs.com/package/poker-odds-calculator)
 
 > An easy-to-use pre-flop & post-flop odds calculator for Texas Hold'em and Short Deck Hold'em (6+)
@@ -11,7 +11,7 @@
 - ⚡ Fast odds calculation (CLI & API)
 - 🎲 Calculate equity for any number of hands
 - 🧑‍💻 Node.js & TypeScript ready
-- 🧪 100% tested, production ready
+- 🧪 Automated validation, multi-player scenario tests and GitHub Actions checks
 
 ## 📦 Installation
 
@@ -74,3 +74,38 @@ const result = OddsCalculator.calculate([player1Cards, player2Cards], board, 'sh
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 🛡️ Security and calculation limits
+
+This repository is a **synchronous Node.js library and CLI**, not an HTTP service.
+Applications exposing it over HTTP must also implement authentication (where
+appropriate), request-size limits, rate limiting, and execution isolation.
+Never pass untrusted user input straight to a long-running synchronous function
+on a shared web server event loop.
+
+- Each player must provide exactly two unique, valid cards.
+- Known boards must contain 0, 3 (flop), 4 (turn) or 5 (river) cards.
+- Supports 2–23 fully specified players in standard Hold'em, 2–15 in Short Deck.
+  These are **mathematical deck limits**, not customary casino table limits.
+- Preflop uses Monte Carlo, capped at 250,000 iterations per invocation.
+  The default remains 100,000; choose a smaller value on request-facing systems.
+- Flop and turn enumerate all available boards exactly; river is a single outcome.
+- Duplicate or impossible cards and unsupported variants are rejected.
+
+`getEquity()` returns the rounded **outright win percentage** (ties excluded),
+while `getTiePercentage()` reports how often the player is involved in a tie.
+`getPotEquity()` returns the **expected share of the pot**, including split pots,
+to two decimal places. Pot equities sum to approximately 100% (rounding aside).
+
+```js
+const odds = OddsCalculator.calculate(
+  [CardGroup.fromString('AsAh'), CardGroup.fromString('KsKh')],
+  undefined, 'full', 10000
+);
+console.log(odds.equities.map(player => player.getPotEquity()));
+```
+
+Use `--iterations 10000` in the CLI to cap preflop simulation work.
+
+CI validates input boundaries, popular starting hands, multiway outcomes across
+all four streets, TypeScript compilation, linting, and production npm advisories.
