@@ -116,6 +116,9 @@ export class Card {
       throw new Error('Invalid card input');
     }
     const tmp: string = s.trim();
+    if (/[^\x20-\x7e]/.test(tmp)) {
+      throw new Error('Invalid card input');
+    }
     if (tmp.length !== 2) {
       // Never echo terminal control codes from untrusted CLI input.
       throw new Error(`Invalid card: ${tmp.replace(/[^\x20-\x7e]/g, '?')}`);

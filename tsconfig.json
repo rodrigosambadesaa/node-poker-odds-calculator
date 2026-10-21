@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2022",
     "module": "node16",
     "outDir": "./dist/",
     "sourceMap": true,
@@ -12,7 +12,10 @@
     "removeComments": false,
     "declaration": true,
     "moduleResolution": "node16",
-    "declarationDir": "./dts/"
+    "declarationDir": "./dts/",
+    "lib": [
+      "ES2022"
+    ]
   },
   "exclude": [
     "node_modules",

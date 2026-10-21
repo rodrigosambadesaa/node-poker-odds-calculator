@@ -4,7 +4,7 @@
  */
 import { expect } from 'chai';
 import { CardGroup, HandEquity, HandRank,
-         OddsCalculator, ShortDeckGame, ShortDeckRank } from '../src';
+         OddsCalculator, ShortDeckGame, ShortDeckRank } from '../src/index.js';
 
 describe('OddsCalculator: short-deck', () => {
   it('no board', () => {

@@ -2,7 +2,7 @@
  * Regression tests: untrusted inputs, expected pot shares and player-count / street matrix.
  */
 import { expect } from 'chai';
-import { Card, CardGroup, OddsCalculator, Suit } from '../src/index';
+import { Card, CardGroup, OddsCalculator, Suit } from '../src/index.js';
 
 const group = (cards: string): CardGroup => CardGroup.fromString(cards);
 

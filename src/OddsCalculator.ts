@@ -136,7 +136,9 @@ export class OddsCalculator {
       throw new Error('Detected duplicate cards');
     }
 
-    iterations = iterations || 0;
+    // Iteration arguments only apply to preflop Monte Carlo. Exact postflop
+    // enumeration must always report the true number of possible boards.
+    iterations = !board || board.length === 0 ? (iterations || 0) : 0;
 
     let game: IGame;
 
