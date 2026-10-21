@@ -6,3 +6,4 @@ dist
 dts
 coverage
 .vscode/
+.test-dist/

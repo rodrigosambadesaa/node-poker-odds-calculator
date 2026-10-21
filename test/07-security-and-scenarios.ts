@@ -9,9 +9,18 @@ const group = (cards: string): CardGroup => CardGroup.fromString(cards);
 function scenarioHands(shortDeck: boolean): string[] {
   const ranks: string[] = (shortDeck ? 'AKQJT9876' : 'AKQJT98765432').split('');
   const pairs: string[] = ranks.map((rank: string): string => `${rank}s${rank}h`);
-  const broadway: string[] = ranks.map((rank: string, i: number): string =>
-    `${rank}c${ranks[(i + 1) % ranks.length]}d`);
-  return pairs.concat(broadway);
+  // Distinct suited connectors and Broadway cards: AKs, QJs, T9s, etc.
+  // Together with the pairs this fills a whole valid physical deck.
+  const suited: string[] = [];
+  for (let i = 0; i + 1 < ranks.length; i += 2) {
+    suited.push(`${ranks[i]}c${ranks[i + 1]}c`);
+    suited.push(`${ranks[i]}d${ranks[i + 1]}d`);
+  }
+  if (ranks.length % 2 === 1) {
+    const last: string = ranks[ranks.length - 1];
+    suited.push(`${last}c${last}d`);
+  }
+  return pairs.concat(suited);
 }
 
 function communityCards(hands: string[]): string[] {
@@ -81,6 +90,21 @@ describe('Security: inputs and bounded simulation', () => {
       expect(equity.getTiePercentage()).to.equal(100);
       expect(equity.getPotEquity()).to.equal(33.33);
     }
+  });
+});
+
+describe('Known multiway outcomes', () => {
+  it('splits a 3-player final pot equally between the two wheel straights', () => {
+    const players = [group('AsAh'), group('AcAd'), group('KsKh')];
+    const result = OddsCalculator.calculate(players, group('2c3d4h5s9c'));
+    expect(result.equities.map((e) => e.getPotEquity())).to.deep.equal([50, 50, 0]);
+    expect(result.equities.map((e) => e.getTiePercentage())).to.deep.equal([100, 100, 0]);
+  });
+
+  it('reports a completely decided heads-up river accurately', () => {
+    const result = OddsCalculator.calculate(
+      [group('AsAh'), group('KsKh')], group('2c3d4h9cTd'));
+    expect(result.equities.map((e) => e.getPotEquity())).to.deep.equal([100, 0]);
   });
 });
 
