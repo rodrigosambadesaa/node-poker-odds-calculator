@@ -103,14 +103,25 @@ export class Card {
   protected suit: number;
 
   public constructor(rank: number, suit: number) {
+    if (!Number.isInteger(rank) || rank < Rank.TWO || rank > Rank.ACE ||
+        !Number.isInteger(suit) || !Suit.all().includes(suit)) {
+      throw new Error('Invalid card rank or suit');
+    }
     this.rank = rank;
     this.suit = suit;
   }
 
   public static fromString(s: string): Card {
-    const tmp: string = s.replace(/[^a-z0-9]/gi, '');
+    if (typeof s !== 'string' || s.length > 32) {
+      throw new Error('Invalid card input');
+    }
+    const tmp: string = s.trim();
+    if (/[^\x20-\x7e]/.test(tmp)) {
+      throw new Error('Invalid card input');
+    }
     if (tmp.length !== 2) {
-      throw new Error(`Invalid card: ${tmp}`);
+      // Never echo terminal control codes from untrusted CLI input.
+      throw new Error(`Invalid card: ${tmp.replace(/[^\x20-\x7e]/g, '?')}`);
     }
     return new Card(
       Rank.fromString(tmp[0].toLowerCase()),

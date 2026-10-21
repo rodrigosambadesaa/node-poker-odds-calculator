@@ -2,7 +2,7 @@
  * Tests for Card class
  */
 import { expect } from 'chai';
-import { Card, Rank, Suit } from '../src/index';
+import { Card, Rank, Suit } from '../src/index.js';
 
 describe('Card', () => {
   describe('fromString()', () => {

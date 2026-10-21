@@ -2,7 +2,7 @@
  * Tests for HandRank class
  */
 import { expect } from 'chai';
-import { CardGroup, FullDeckGame, HandRank, Rank } from '../src/index';
+import { CardGroup, FullDeckGame, HandRank, Rank } from '../src/index.js';
 
 describe('HandRank', () => {
   it('detects royal flush', () => {

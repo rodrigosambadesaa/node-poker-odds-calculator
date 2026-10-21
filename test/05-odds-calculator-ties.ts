@@ -3,7 +3,7 @@
  * (Focused on Tie scenarios)
  */
 import { expect } from 'chai';
-import { CardGroup, OddsCalculator } from '../src/index';
+import { CardGroup, OddsCalculator } from '../src/index.js';
 
 describe('OddsCalculator (ties)', () => {
   it('no board', () => {

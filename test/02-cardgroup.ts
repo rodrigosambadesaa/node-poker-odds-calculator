@@ -2,7 +2,7 @@
  * Tests for CardGroup class
  */
 import { expect } from 'chai';
-import { Card, CardGroup, Rank, Suit } from '../src/index';
+import { Card, CardGroup, Rank, Suit } from '../src/index.js';
 
 describe('CardGroup', () => {
   describe('fromString()', () => {

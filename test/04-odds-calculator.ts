@@ -3,7 +3,7 @@
  */
 import { expect } from 'chai';
 import times from 'lodash/times.js';
-import { CardGroup, HandEquity, HandRank, OddsCalculator } from '../src/index';
+import { CardGroup, HandEquity, HandRank, OddsCalculator } from '../src/index.js';
 
 describe('OddsCalculator', () => {
   it('should throw exception if board has 1 or 2 cards', () => {

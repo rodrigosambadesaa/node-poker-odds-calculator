@@ -14,9 +14,17 @@ export class CardGroup extends Array {
   }
 
   public static fromString(s: string): CardGroup {
-    const tmp: string = s.replace(/[^a-z0-9]/gi, '');
+    if (typeof s !== 'string' || s.length > 256) {
+      throw new Error('Invalid cards input');
+    }
+    // Only documented card separators are discarded. Do not silently accept
+    // HTML, control sequences or arbitrary characters in user-supplied cards.
+    if (/[^2-9a-z\s,;|\/-]/i.test(s)) {
+      throw new Error('Invalid cards input');
+    }
+    const tmp: string = s.replace(/[\s,;|\/-]/g, '');
     if (tmp.length % 2 !== 0) {
-      throw new Error(`Invalid cards: ${s}`);
+      throw new Error(`Invalid cards: ${s.replace(/[^\x20-\x7e]/g, '?')}`);
     }
 
     const cardgroup: CardGroup = new CardGroup();
